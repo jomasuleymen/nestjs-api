@@ -19,12 +19,18 @@ export class ProductController {
 
 	@Get(":id")
 	async get(@Param("id") id: string) {
-		return this.productService.get(id);
+		try {
+			return await this.productService.get(id);
+		} catch (e) {
+			return {
+				error: e.message,
+			};
+		}
 	}
 
 	@Get()
 	async getAll() {
-		return this.productService.getAll();
+		return await this.productService.getAll();
 	}
 
 	// @Delete(":id")

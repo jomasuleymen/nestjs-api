@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { ProductDocument, Product } from "./product.model";
 
 @Injectable()
@@ -12,14 +12,16 @@ export class ProductService {
 
 	async create(dto: Omit<Product, "_id">) {
 		const newProduct = new this.productSchema(dto);
-		return newProduct.save();
+		return await newProduct.save();
 	}
 
 	async get(id: string) {
-		return this.productSchema.findById(id);
+		const isValidObjectId = mongoose.Types.ObjectId.isValid(id);
+		if (!isValidObjectId) throw new Error("Invalid ObjectId");
+		return await this.productSchema.findById(id);
 	}
 
 	async getAll() {
-		return this.productSchema.find();
+		return await this.productSchema.find();
 	}
 }
