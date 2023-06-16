@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { ProductDocument, Product } from "./product.model";
+import { FindProductDto } from "./dto/find-product.dto";
 
 @Injectable()
 export class ProductService {
@@ -21,7 +22,10 @@ export class ProductService {
 		return await this.productSchema.findById(id);
 	}
 
-	async getAll() {
-		return await this.productSchema.find();
+	async find(dto: FindProductDto) {
+		return await this.productSchema
+			.find()
+			.limit(dto.limit)
+			.skip(dto.skip || 0);
 	}
 }

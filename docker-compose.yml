@@ -5,12 +5,20 @@ services:
     image: mongo:latest
     restart: always
     ports:
-      - '27017:27017'
+      - 27017:27017
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=admin
     volumes:
       - db-data:/data/db
+  redisdb:
+    image: redis:alpine
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
 
 volumes:
   db-data:
+  redis-data:

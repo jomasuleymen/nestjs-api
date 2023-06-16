@@ -1,6 +1,20 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import {
+	Body,
+	Controller,
+	Get,
+	HttpCode,
+	HttpException,
+	HttpStatus,
+	Param,
+	Post,
+	UseGuards,
+	UsePipes,
+	ValidationPipe,
+} from "@nestjs/common";
 import { Product } from "./product.model";
 import { ProductService } from "./product.service";
+import { FindProductDto } from "./dto/find-product.dto";
+import { AuthGuard } from "src/auth/guards/auth.guard";
 
 @Controller("product")
 export class ProductController {
@@ -11,9 +25,7 @@ export class ProductController {
 		try {
 			return await this.productService.create(productDTO);
 		} catch (e) {
-			return {
-				error: e.message,
-			};
+			throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -22,15 +34,24 @@ export class ProductController {
 		try {
 			return await this.productService.get(id);
 		} catch (e) {
-			return {
-				error: e.message,
-			};
+			throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
 		}
 	}
 
-	@Get()
-	async getAll() {
-		return await this.productService.getAll();
+	@UsePipes(
+		new ValidationPipe({
+			transform: true,
+		}),
+	)
+	@UseGuards(AuthGuard)
+	@HttpCode(200)
+	@Post("find")
+	async find(@Body() dto: FindProductDto) {
+		try {
+			return await this.productService.find(dto);
+		} catch (err) {
+			throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	// @Delete(":id")
@@ -41,11 +62,5 @@ export class ProductController {
 	// @Patch(":id")
 	// async update(@Param("id") id: string, @Body() productDTO: Product) {
 	// 	return "This action updates a product";
-	// }
-
-	// @HttpCode(200)
-	// @Post("find")
-	// async find(@Body() dto: FindProductDto) {
-	// 	return "This action returns all products";
 	// }
 }
