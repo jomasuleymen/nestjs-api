@@ -9,13 +9,13 @@ import {
 	ValidationPipe,
 } from "@nestjs/common";
 import { Response } from "express";
-import UserPayload from "src/decorators/user.decorator";
+import UserPayload from "src/auth/decorators/jwt-user-payload.decorator";
 import { ACCESS_TOKEN_HEADER, REFRESH_TOKEN_HEADER } from "./auth.constants";
-import { AuthService, JwtAuthPayload } from "./auth.service";
-import UserLoginrDTO from "./dto/user-login.dto";
-import UserRegisterDTO from "./dto/user-register.dto";
-import { AuthGuard } from "./guards/auth.guard";
+import { AuthService, JwtUserPayload, PairTokens } from "./auth.service";
 import JwtToken from "./decorators/jwt-token.decorator";
+import UserLoginDTO from "./dto/user-login.dto";
+import UserRegisterDTO from "./dto/user-register.dto";
+import { AuthRefreshGuard } from "./guards/auth-refresh.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -33,39 +33,36 @@ export class AuthController {
 
 	@UsePipes(new ValidationPipe())
 	@Post("login")
-	async login(@Body() dto: UserLoginrDTO, @Res() res: Response) {
+	async login(@Body() dto: UserLoginDTO, @Res() res: Response) {
 		try {
 			const tokens = await this.authService.login(dto);
 
-			return res
-				.setHeader(ACCESS_TOKEN_HEADER, tokens.accessToken)
-				.setHeader(REFRESH_TOKEN_HEADER, tokens.refreshToken)
-				.json(tokens);
+			return this.setTokensToResponse(res, tokens);
 		} catch (e) {
 			throw new BadRequestException(e.message);
 		}
 	}
 
-	@UseGuards(AuthGuard)
+	@UseGuards(AuthRefreshGuard)
 	@Post("refresh-token")
 	async refreshToken(
 		@Res() res: Response,
-		@UserPayload() user: JwtAuthPayload,
+		@UserPayload() payload: JwtUserPayload,
 		@JwtToken() token: string,
 	) {
 		try {
-			const tokens = await this.authService.refreshToken(
-				user.sub,
-				user.email,
-				token,
-			);
+			const tokens = await this.authService.refreshToken(payload, token);
 
-			return res
-				.setHeader(ACCESS_TOKEN_HEADER, tokens.accessToken)
-				.setHeader(REFRESH_TOKEN_HEADER, tokens.refreshToken)
-				.json(tokens);
+			return this.setTokensToResponse(res, tokens);
 		} catch (e) {
 			throw new BadRequestException(e.message);
 		}
+	}
+
+	private setTokensToResponse(res: Response, tokens: PairTokens): Response {
+		return res
+			.setHeader(ACCESS_TOKEN_HEADER, tokens.accessToken)
+			.setHeader(REFRESH_TOKEN_HEADER, tokens.refreshToken)
+			.json(tokens);
 	}
 }

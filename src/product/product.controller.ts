@@ -11,10 +11,10 @@ import {
 	UsePipes,
 	ValidationPipe,
 } from "@nestjs/common";
+import { AuthGuard } from "src/auth/guards/auth-access.guard";
+import { FindProductDto } from "./dto/find-product.dto";
 import { Product } from "./product.model";
 import { ProductService } from "./product.service";
-import { FindProductDto } from "./dto/find-product.dto";
-import { AuthGuard } from "src/auth/guards/auth.guard";
 
 @Controller("product")
 export class ProductController {

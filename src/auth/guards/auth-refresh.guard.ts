@@ -5,37 +5,37 @@ import {
 	UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { Request } from "express";
-import { AUTH_TYPE_HEADER } from "../auth.constants";
 
-import { JwtAuthPayload } from "../auth.service";
+import { JwtUserPayload } from "../auth.service";
 import JwtTokenExpiredException from "../exceptions/token-expired.exception";
+import { INAPPROPRIATE_TOKEN_MESSAGE } from "../auth.constants";
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthRefreshGuard implements CanActivate {
 	constructor(private jwtService: JwtService) {}
 
 	canActivate(context: ExecutionContext): boolean | Promise<boolean> {
 		const request = context.switchToHttp().getRequest();
-		const token = this.extractTokenFromHeader(request);
+		const token = request.body["refreshToken"];
 
 		if (!token) {
 			throw new UnauthorizedException();
 		}
 
+		let payload: JwtUserPayload;
+
 		try {
-			const payload = this.jwtService.verify<JwtAuthPayload>(token);
-			request.user = payload;
-			request.token = token;
+			payload = this.jwtService.verify<JwtUserPayload>(token);
 		} catch (err) {
 			throw new JwtTokenExpiredException();
 		}
 
-		return true;
-	}
+		if (payload.sub !== "refresh")
+			throw new UnauthorizedException(INAPPROPRIATE_TOKEN_MESSAGE);
 
-	private extractTokenFromHeader(request: Request): string | undefined {
-		const [type, token] = request.headers.authorization?.split(" ") ?? [];
-		return type === AUTH_TYPE_HEADER ? token : undefined;
+		request.user = payload;
+		request.token = token;
+
+		return true;
 	}
 }

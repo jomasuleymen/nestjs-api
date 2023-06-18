@@ -1,6 +1,11 @@
-import { IsEmail, IsStrongPassword } from "class-validator";
+import { IsEmail, IsStrongPassword, Length } from "class-validator";
 
 class UserRegisterDTO {
+	@Length(3, 18, {
+		message: "username length should me greater than 3 and less than 18",
+	})
+	username: string;
+
 	@IsEmail()
 	email: string;
 
