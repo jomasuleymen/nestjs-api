@@ -10,11 +10,11 @@ import {
 import { Response } from "express";
 import { ACCESS_TOKEN_HEADER, REFRESH_TOKEN_HEADER } from "./auth.constants";
 import { AuthService, JwtUserPayload, PairTokens } from "./auth.service";
-import UserPayload from "./decorators/jwt-user.decorator";
+import UserPayload from "./decorators/userPayload.decorator";
 import UserLoginDTO from "./dto/user-login.dto";
 import UserRegisterDTO from "./dto/user-register.dto";
 import { AuthRefreshGuard } from "./guards/auth-refresh.guard";
-import JwtToken from "./decorators/jwt-token.decorator";
+import JwtToken from "./decorators/jwtToken.decorator";
 
 @Controller("auth")
 export class AuthController {

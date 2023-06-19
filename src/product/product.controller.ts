@@ -21,7 +21,7 @@ import { ProductService } from "./product.service";
 export class ProductController {
 	constructor(private productService: ProductService) {}
 
-	@UseGuards(AuthGuard)
+	@UseAuthRoles(USER_ROLE.ADMIN)
 	@HttpCode(HttpStatus.CREATED)
 	@Post()
 	async create(@Body() productDTO: Omit<Product, "_id">) {
