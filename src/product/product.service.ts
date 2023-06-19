@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { FindProductDto } from "./dto/find-product.dto";
@@ -18,7 +18,7 @@ export class ProductService {
 
 	async get(id: string) {
 		const isValidObjectId = mongoose.Types.ObjectId.isValid(id);
-		if (!isValidObjectId) throw new Error("Invalid ObjectId");
+		if (!isValidObjectId) throw new BadRequestException("Invalid ObjectId");
 		return await this.productSchema.findById(id);
 	}
 

@@ -8,7 +8,7 @@ import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { getMongooseConfig } from "./config/database.config";
 import { ProductModule } from "./product/product.module";
-import { UserModule } from './user/user.module';
+import { UserModule } from "./user/user.module";
 
 @Module({
 	imports: [

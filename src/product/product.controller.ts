@@ -3,7 +3,6 @@ import {
 	Controller,
 	Get,
 	HttpCode,
-	HttpException,
 	HttpStatus,
 	Param,
 	Post,
@@ -11,7 +10,9 @@ import {
 	UsePipes,
 	ValidationPipe,
 } from "@nestjs/common";
+import { UseAuthRoles } from "src/auth/decorators/useAuthRoles.decorator";
 import { AuthGuard } from "src/auth/guards/auth-access.guard";
+import { USER_ROLE } from "src/user/user-roles";
 import { FindProductDto } from "./dto/find-product.dto";
 import { Product } from "./product.model";
 import { ProductService } from "./product.service";
@@ -20,38 +21,27 @@ import { ProductService } from "./product.service";
 export class ProductController {
 	constructor(private productService: ProductService) {}
 
+	@UseGuards(AuthGuard)
+	@HttpCode(HttpStatus.CREATED)
 	@Post()
 	async create(@Body() productDTO: Omit<Product, "_id">) {
-		try {
-			return await this.productService.create(productDTO);
-		} catch (e) {
-			throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
-		}
+		return await this.productService.create(productDTO);
 	}
 
 	@Get(":id")
 	async get(@Param("id") id: string) {
-		try {
-			return await this.productService.get(id);
-		} catch (e) {
-			throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
-		}
+		return await this.productService.get(id);
 	}
 
+	@UseAuthRoles(USER_ROLE.CUSTOMER)
 	@UsePipes(
 		new ValidationPipe({
 			transform: true,
 		}),
 	)
-	@UseGuards(AuthGuard)
-	@HttpCode(200)
 	@Post("find")
 	async find(@Body() dto: FindProductDto) {
-		try {
-			return await this.productService.find(dto);
-		} catch (err) {
-			throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
-		}
+		return await this.productService.find(dto);
 	}
 
 	// @Delete(":id")
