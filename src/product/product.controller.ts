@@ -6,12 +6,10 @@ import {
 	HttpStatus,
 	Param,
 	Post,
-	UseGuards,
 	UsePipes,
-	ValidationPipe,
+	ValidationPipe
 } from "@nestjs/common";
-import { UseAuthRoles } from "src/auth/decorators/useAuthRoles.decorator";
-import { AuthGuard } from "src/auth/guards/auth-access.guard";
+import { UseAuthorized } from "src/auth/decorators/useAuthRoles.decorator";
 import { USER_ROLE } from "src/user/user-roles";
 import { FindProductDto } from "./dto/find-product.dto";
 import { Product } from "./product.model";
@@ -21,7 +19,7 @@ import { ProductService } from "./product.service";
 export class ProductController {
 	constructor(private productService: ProductService) {}
 
-	@UseAuthRoles(USER_ROLE.ADMIN)
+	@UseAuthorized(USER_ROLE.ADMIN)
 	@HttpCode(HttpStatus.CREATED)
 	@Post()
 	async create(@Body() productDTO: Omit<Product, "_id">) {
@@ -33,7 +31,7 @@ export class ProductController {
 		return await this.productService.get(id);
 	}
 
-	@UseAuthRoles(USER_ROLE.CUSTOMER)
+	@UseAuthorized(USER_ROLE.CUSTOMER)
 	@UsePipes(
 		new ValidationPipe({
 			transform: true,

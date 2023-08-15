@@ -64,9 +64,9 @@ export class AuthService {
 		token: string,
 	): Promise<PairTokens> {
 		const jwtCacheName = this.getRedisTokenKey(payload.id);
-		const cachedToken = await this.redis.get(jwtCacheName);
+		const inCacheToken = await this.redis.get(jwtCacheName);
 
-		if (!cachedToken || cachedToken !== token)
+		if (!inCacheToken || inCacheToken !== token)
 			throw new JwtTokenExpiredException();
 
 		const user = await this.userService.findById(payload.id);
