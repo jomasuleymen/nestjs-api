@@ -10,22 +10,6 @@ import { User } from "./user.model";
 export class UserService {
 	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-	async findById(id: string | mongoose.Types.ObjectId) {
-		if (!mongoose.Types.ObjectId.isValid(id))
-			throw new BadRequestException("input should be objectId");
-
-		const user = await this.userModel.findById(id);
-		return user;
-	}
-
-	async find(username: string) {
-		const user = await this.userModel.findOne(
-			this.getEmailOrUsername(username),
-		);
-
-		return user;
-	}
-
 	async createUser(dto: UserRegisterDTO) {
 		const userByEmail = await this.userModel.exists({ email: dto.email });
 		if (userByEmail) throw new BadRequestException("email is already taken");
@@ -46,7 +30,23 @@ export class UserService {
 
 		await newUser.save();
 
-		return newUser;
+		return newUser?.toObject();
+	}
+
+	async findById(id: string | mongoose.Types.ObjectId) {
+		if (!mongoose.Types.ObjectId.isValid(id))
+			throw new BadRequestException("input should be objectId");
+
+		const user = await this.userModel.findById(id);
+		return user;
+	}
+
+	async find(username: string) {
+		const user = await this.userModel.findOne(
+			this.getEmailOrUsername(username),
+		);
+
+		return user;
 	}
 
 	private getEmailOrUsername(username: string): mongoose.FilterQuery<User> {

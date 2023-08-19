@@ -6,7 +6,6 @@ export const getMongooseConfig = (
 ): MongooseModuleFactoryOptions => {
 	return {
 		uri: getConnectionUri(configService),
-		useNewUrlParser: true,
 		authSource: "admin",
 	};
 };

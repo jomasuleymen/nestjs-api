@@ -26,7 +26,7 @@ export class User {
 
 	@Prop({
 		type: String,
-		default: USER_ROLE.CUSTOMER,
+		default: USER_ROLE.EMPLOYEE,
 		enum: Object.values(USER_ROLE),
 	})
 	role: USER_ROLE;

@@ -7,7 +7,7 @@ import {
 	Param,
 	Post,
 	UsePipes,
-	ValidationPipe
+	ValidationPipe,
 } from "@nestjs/common";
 import { UseAuthorized } from "src/auth/decorators/useAuthRoles.decorator";
 import { USER_ROLE } from "src/user/user-roles";
@@ -31,7 +31,7 @@ export class ProductController {
 		return await this.productService.get(id);
 	}
 
-	@UseAuthorized(USER_ROLE.CUSTOMER)
+	@UseAuthorized(USER_ROLE.EMPLOYEE)
 	@UsePipes(
 		new ValidationPipe({
 			transform: true,

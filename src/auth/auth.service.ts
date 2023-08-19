@@ -7,7 +7,6 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import bcrypt from "bcrypt";
 import Redis from "ioredis";
-import _ from "lodash";
 import { USER_ROLE } from "src/user/user-roles";
 import { UserDocument } from "src/user/user.model";
 import { UserService } from "src/user/user.service";
@@ -18,11 +17,11 @@ import {
 import UserLoginDTO from "./dto/user-login.dto";
 import UserRegisterDTO from "./dto/user-register.dto";
 import JwtTokenExpiredException from "./exceptions/token-expired.exception";
+import _ from "lodash";
 
 export type JwtUserPayload = {
 	sub: "access" | "refresh";
 	id: string;
-	email: string;
 	role: USER_ROLE;
 };
 
@@ -61,12 +60,12 @@ export class AuthService {
 
 	async refreshToken(
 		payload: JwtUserPayload,
-		token: string,
+		refreshToken: string,
 	): Promise<PairTokens> {
 		const jwtCacheName = this.getRedisTokenKey(payload.id);
 		const inCacheToken = await this.redis.get(jwtCacheName);
 
-		if (!inCacheToken || inCacheToken !== token)
+		if (!inCacheToken || inCacheToken !== refreshToken)
 			throw new JwtTokenExpiredException();
 
 		const user = await this.userService.findById(payload.id);
@@ -79,7 +78,6 @@ export class AuthService {
 	private async generateTokens(user: UserDocument): Promise<PairTokens> {
 		const payload: Omit<JwtUserPayload, "sub"> = {
 			id: user.id,
-			email: user.email,
 			role: user.role,
 		};
 

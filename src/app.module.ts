@@ -9,6 +9,7 @@ import { AuthModule } from "./auth/auth.module";
 import { getMongooseConfig } from "./config/database.config";
 import { ProductModule } from "./product/product.module";
 import { UserModule } from "./user/user.module";
+import { getRedisConfig } from "./config/redis.config";
 
 @Module({
 	imports: [
@@ -28,15 +29,7 @@ import { UserModule } from "./user/user.module";
 		}),
 		RedisModule.forRootAsync({
 			inject: [ConfigService],
-			useFactory: (config: ConfigService) => ({
-				config: {
-					host: config.get<string>("REDIS_HOST"),
-					port: parseInt(config.get<string>("REDIS_PORT", "6379")),
-					onClientCreated: () => {
-						console.log("Redis client created successfully");
-					},
-				},
-			}),
+			useFactory: getRedisConfig,
 		}),
 		AuthModule,
 		ProductModule,
