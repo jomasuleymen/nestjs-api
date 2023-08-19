@@ -1,10 +1,9 @@
-import { JwtUserPayload } from "src/auth/auth.service";
+import UserDTO from "src/auth/dto/user.dto";
 
 declare global {
 	namespace Express {
 		export interface Request {
-			jwtToken: string;
-			user: JwtUserPayload;
+			user: UserDTO;
 		}
 	}
 }
