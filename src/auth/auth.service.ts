@@ -1,6 +1,5 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import bcrypt from "bcrypt";
-import _ from "lodash";
 import { UserService } from "src/user/user.service";
 import UserLoginDTO from "./dto/user-login.dto";
 import UserRegisterDTO from "./dto/user-register.dto";
@@ -14,10 +13,13 @@ export class AuthService {
 		const user = await this.userService.createUser(dto);
 		if (!user) throw new InternalServerErrorException();
 
-		return _.pick(user, "id", "email", "username", "roles");
+		return {
+			message: "Пользователь успешно зарегистрирован",
+			success: true,
+		};
 	}
 
-	async login(dto: UserLoginDTO) {
+	async validateUser(dto: UserLoginDTO) {
 		const user = await this.userService.find(dto.username);
 
 		if (!user) throw new LoginFailedException();
@@ -26,6 +28,11 @@ export class AuthService {
 
 		if (!isPasswordCorrect) throw new LoginFailedException();
 
-		return _.pick(user, "id", "email", "username", "roles");
+		/* eslint-disable */
+		// @ts-ignore
+		const { password, __v, ...result } = user.toObject();
+		/* eslint-enable */
+
+		return result;
 	}
 }

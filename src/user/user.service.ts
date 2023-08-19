@@ -30,7 +30,7 @@ export class UserService {
 
 		await newUser.save();
 
-		return newUser?.toObject();
+		return newUser;
 	}
 
 	async findById(id: string | mongoose.Types.ObjectId) {
