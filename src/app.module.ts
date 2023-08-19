@@ -40,7 +40,10 @@ import { UserModule } from "./user/user.module";
 	exports: [],
 })
 export class AppModule implements NestModule {
-	constructor(private readonly redis: RedisService) {}
+	constructor(
+		private readonly redis: RedisService,
+		private readonly config: ConfigService,
+	) {}
 
 	configure(consumer: MiddlewareConsumer) {
 		consumer
@@ -51,11 +54,12 @@ export class AppModule implements NestModule {
 						prefix: "sessionId:",
 					}),
 					saveUninitialized: false,
-					secret: "sup3rs3cr3t",
+					secret: this.config.get<string>("SESSION_SECRET", "secret"),
 					resave: false,
 					cookie: {
 						sameSite: true,
-						httpOnly: false,
+						secure: false,
+						httpOnly: true,
 						maxAge: 1000 * 60 * 60 * 24 * 7,
 					},
 				}),
